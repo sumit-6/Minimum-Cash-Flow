@@ -188,22 +188,54 @@ int main()
         cout << "Person: " << i + 1 << "\n";
     }
     int m;
-    cout << "\n" << "Enter number of transactions: ";
-    cin >> m;
-
     vector<vector<int>> graph(N1, vector<int>(N1, 0));
+    bool first = true;
+    statement:
+    if (first)
+    {
+        cout << "\n" << "Enter number of transactions: ";
+        cin >> m;
+    }
+    else
+    {
+        cout << "Enter the further number of transactions: ";
+        cin >> m;
+    }
     cout << "Enter transactions like \"x y m\" where Person (x) pays Person (y) an amount of \"m\"\n";
     int x, y, z;
     for (int i = 0; i < m; i++)
     {
         cout << "Transaction number " << i + 1 << ": ";
         cin >> x >> y >> z;
-        graph[x - 1][y - 1] = z;
+        if((x >= 1 && x <= N1) && (y >= 1 && y <= N1))
+        graph[x - 1][y - 1] += z;
+        else
+        {
+            cout << "Incorrect Transaction Input!!\n";
+            i--;
+        }
     }
     cout << "\n";
     PlotInput(graph);
     vector<vector<int>> solution(N1, vector<int>(N1, 0));
     minCashFlow(graph, solution);
     PlotInput(solution);
+    char c;
+    again:
+    cout << "If you want to add more transactions, enter (y) else (n): ";
+    cin >> c;
+    if (c != 'y' && c != 'n')
+    {
+        cout << "Incorrect Transaction!!\n";
+        goto again;
+    }
+    else
+    {
+        if (c == 'y')
+        {
+            first = false;
+            goto statement;
+        }
+    }
     return 0;
 }
