@@ -208,7 +208,7 @@ int main()
         cout << "Transaction number " << i + 1 << ": ";
         cin >> x >> y >> z;
         if((x >= 1 && x <= N1) && (y >= 1 && y <= N1))
-        graph[x - 1][y - 1] += z;
+            graph[x - 1][y - 1] += z;
         else
         {
             cout << "Incorrect Transaction Input!!\n";
@@ -226,7 +226,7 @@ int main()
     cin >> c;
     if (c != 'y' && c != 'n')
     {
-        cout << "Incorrect Transaction!!\n";
+        cout << "Incorrect Input!!\n";
         goto again;
     }
     else
