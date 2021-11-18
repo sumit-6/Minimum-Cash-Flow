@@ -11,44 +11,25 @@
 using namespace cv;
 using namespace std;
 
-int getMin(vector<int> arr)
-{
-    int N = arr.size();
-    int minInd = 0;
-    for (int i = 1; i < N; i++)
-        if (arr[i] < arr[minInd])
-            minInd = i;
-    return minInd;
-}
+int IndexOfMin(vector<int> arr);
+int IndexOfMax(vector<int> arr);
 
-int getMax(vector<int> arr)
+void Solve(vector<int> NetPay, vector<vector<int>>& solution)
 {
-    int N = arr.size();
-    int maxInd = 0;
-    for (int i = 1; i < N; i++)
-        if (arr[i] > arr[maxInd])
-            maxInd = i;
-    return maxInd;
-}
+    int Max_Credit = IndexOfMax(NetPay);
+    int Max_Debit = IndexOfMin(NetPay);
 
-int minOf2(int x, int y)
-{
-    return (x < y) ? x : y;
-}
-
-void minCashFlowRec(vector<int> amount, vector<vector<int>> &solution)
-{
-    int mxCredit = getMax(amount), mxDebit = getMin(amount);
-
-    if (amount[mxCredit] == 0 && amount[mxDebit] == 0)
+    if (NetPay[Max_Credit] == 0 && NetPay[Max_Debit] == 0)
+    {
         return;
+    }
 
-    int min = minOf2(-amount[mxDebit], amount[mxCredit]);
-    amount[mxCredit] -= min;
-    amount[mxDebit] += min;
-    solution[mxDebit][mxCredit] = min;
+    int spend = (-NetPay[Max_Debit] < NetPay[Max_Credit]) ? -NetPay[Max_Debit] : NetPay[Max_Credit];
+    NetPay[Max_Credit] -= spend;
+    NetPay[Max_Debit] += spend;
+    solution[Max_Debit][Max_Credit] = spend;
 
-    minCashFlowRec(amount, solution);
+    Solve(NetPay, solution);
 }
 
 int lineof(int y1, int y0, int x1, int x0, int x)
@@ -73,8 +54,8 @@ void PlotInput(vector<vector<int>>& graph)
     vector<vector<double>> coordinates;
     auto BackGroundColour = Scalar(255, 255, 255);
     Mat _img(1000, 1300, CV_8UC3, BackGroundColour);
-    int boundaryRadius = 250;
-    int shiftX = 650, shiftY = 350;
+    int boundaryRadius = 230;
+    int shiftX = 600, shiftY = 350;
     double TWO_PI = (double)2 * PI;
     int d = (((double)20 / TWO_PI)*atan(N)) + 5;
     int radius = ((TWO_PI * boundaryRadius) / N) - d;
@@ -165,16 +146,48 @@ void PlotInput(vector<vector<int>>& graph)
     waitKey(0);
 }
 
-void minCashFlow(vector<vector<int>> graph, vector<vector<int>>& solution)
+int IndexOfMin(vector<int> arr)
+{
+    int N = arr.size();
+    int Index = 0;
+    for (int i = 1; i < N; i++)
+    {
+        if (arr[i] < arr[Index])
+        {
+            Index = i;
+        }
+    }
+    return Index;
+}
+
+int IndexOfMax(vector<int> arr)
+{
+    int N = arr.size();
+    int Index = 0;
+    for (int i = 1; i < N; i++)
+    {
+        if (arr[i] > arr[Index])
+        {
+            Index = i;
+        }
+    }
+    return Index;
+}
+
+void SimplifyTransactions(vector<vector<int>> graph, vector<vector<int>>& solution)
 {
     int N = graph.size();
-    vector<int> amount(N, 0);
+    vector<int> NetPay(N, 0);
 
     for (int p = 0; p < N; p++)
+    {
         for (int i = 0; i < N; i++)
-            amount[p] += (graph[i][p] - graph[p][i]);
+        {
+            NetPay[p] += (graph[i][p] - graph[p][i]);
+        }
+    }
 
-    minCashFlowRec(amount, solution);
+    Solve(NetPay, solution);
 }
 
 int main()
@@ -207,7 +220,7 @@ int main()
     {
         cout << "Transaction number " << i + 1 << ": ";
         cin >> x >> y >> z;
-        if((x >= 1 && x <= N1) && (y >= 1 && y <= N1))
+        if(((x >= 1 && x <= N1) && (y >= 1 && y <= N1)) && z > 0)
             graph[x - 1][y - 1] += z;
         else
         {
@@ -217,12 +230,15 @@ int main()
     }
     cout << "\n";
     PlotInput(graph);
+    cout << "\n-----------------Complex Transaction has been plotted.------------------\n";
     vector<vector<int>> solution(N1, vector<int>(N1, 0));
-    minCashFlow(graph, solution);
+    cout << "\nSolving.......\n";
+    SimplifyTransactions(graph, solution);
     PlotInput(solution);
+    cout << "\n-----------------Simple Transaction has been plotted.------------------\n";
     char c;
     again:
-    cout << "If you want to add more transactions, enter (y) else (n): ";
+    cout << "\n\nIf you want to add more transactions, enter (y) else (n): ";
     cin >> c;
     if (c != 'y' && c != 'n')
     {
